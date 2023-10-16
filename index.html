@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chrome Versions</title>
+    <style>
+        body {
+			font-family: "Comic Sans MS", cursive;
+			background-image: url(https://bingw.jasonzeng.dev/?index=random);
+			background-size: cover;
+			background-repeat: no-repeat;
+			background-position: center;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			margin: 0;
+			opacity: 0.8; /* Set the container opacity to 80% */
+            background-color: #f0f0f0;
+        }
+        #container {
+            text-align: center;
+            background-color: #ffffff;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        label {
+            font-size: 16px;
+        }
+        select {
+            font-size: 14px;
+            padding: 5px;
+        }
+        h2 {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+        h3 {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        li {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <label for="versionSelect">选择 Chrome 版本：</label>
+        <select id="versionSelect">
+        </select>
+
+        <div id="versionInfo">
+        </div>
+    </div>
+
+    <script>
+        // 获取JSON数据
+        function fetchVersions() {
+            fetch('https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json')
+                .then(response => response.json())
+                .then(data => {
+                    const versionSelect = document.getElementById('versionSelect');
+                    const versionInfo = document.getElementById('versionInfo');
+                    
+                    // 清空版本选择框
+                    versionSelect.innerHTML = '';
+
+                    // 填充版本选择框
+                    data.versions.forEach(versionData => {
+                        const option = document.createElement('option');
+                        option.value = versionData.version;
+                        option.textContent = versionData.version;
+                        versionSelect.appendChild(option);
+                    });
+
+                    // 初始加载第一个版本的信息
+                    loadVersionInfo();
+
+                    // 添加监听器，以在选择发生更改时加载所选版本的信息
+                    versionSelect.addEventListener('change', loadVersionInfo);
+
+                    // 加载所选版本的信息
+                    function loadVersionInfo() {
+                        const selectedVersion = versionSelect.value;
+                        const selectedVersionData = data.versions.find(versionData => versionData.version === selectedVersion);
+
+                        if (selectedVersionData) {
+                            // 构建信息字符串
+                            let infoHTML = `<h2>Chrome 版本: ${selectedVersionData.version}</h2>`;
+                            infoHTML += `<p>Revision: ${selectedVersionData.revision}</p>`;
+                            infoHTML += '<h3>Chrome 下载链接：</h3>';
+                            infoHTML += '<ul>';
+                            selectedVersionData.downloads.chrome.forEach(downloadInfo => {
+                                infoHTML += `<li>${downloadInfo.platform}: <a href="${downloadInfo.url}" target="_blank">下载链接</a></li>`;
+                            });
+                            infoHTML += '</ul>';
+                            
+                            // 判断是否有 Chromedriver 数据
+                            if (selectedVersionData.downloads.chromedriver) {
+                                infoHTML += '<h3>Chromedriver 下载链接：</h3>';
+                                infoHTML += '<ul>';
+                                selectedVersionData.downloads.chromedriver.forEach(downloadInfo => {
+                                    infoHTML += `<li>${downloadInfo.platform}: <a href="${downloadInfo.url}" target="_blank">下载链接</a></li>`;
+                                });
+                                infoHTML += '</ul>';
+                            }
+                            
+                            versionInfo.innerHTML = infoHTML;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('发生错误：', error);
+                });
+        }
+
+        // 初次加载版本数据
+        fetchVersions();
+    </script>
+</body>
+</html>
