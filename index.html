@@ -70,14 +70,14 @@
                     
                     // 清空版本选择框
                     versionSelect.innerHTML = '';
-
-                    // 填充版本选择框
-                    data.versions.forEach(versionData => {
-                        const option = document.createElement('option');
-                        option.value = versionData.version;
-                        option.textContent = versionData.version;
-                        versionSelect.appendChild(option);
-                    });
+					
+					// 填充版本选择框
+					data.versions.sort((a, b) => b.version.localeCompare(a.version)).forEach(versionData => {
+						const option = document.createElement('option');
+						option.value = versionData.version;
+						option.textContent = versionData.version;
+						versionSelect.appendChild(option);
+					});
 
                     // 初始加载第一个版本的信息
                     loadVersionInfo();
